@@ -8,18 +8,23 @@ from sklearn.ensemble import IsolationForest
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset
+import time
 
+def acquire_signal_real_time(signal_type='EEG', fs=1000):
+    """Simulate real-time signal acquisition from EEG/EMG/EKG sensors."""
+    duration = 0.1  
+    t = time.time()
+    while True:
+        t_curr = np.linspace(t, t + duration, int(duration * fs))
+        if signal_type == 'EEG':
+            signal = np.sin(2 * np.pi * 10 * t_curr) + np.random.normal(0, 0.1, len(t_curr))  # Example EEG signal
+        elif signal_type == 'EMG':
+            signal = np.sin(2 * np.pi * 50 * t_curr) + np.random.normal(0, 0.2, len(t_curr))  # Example EMG signal
+        elif signal_type == 'EKG':
+            signal = np.sin(2 * np.pi * 1 * t_curr) + np.random.normal(0, 0.3, len(t_curr))  # Example EKG signal
 
-def acquire_signal(signal_type='EEG', duration=10, fs=1000):
-    """Simulate signal acquisition from EEG/EMG/EKG sensors."""
-    t = np.linspace(0, duration, int(duration * fs))
-    if signal_type == 'EEG':
-        signal = np.sin(2 * np.pi * 10 * t) + np.random.normal(0, 0.1, len(t))  # Example EEG signal
-    elif signal_type == 'EMG':
-        signal = np.sin(2 * np.pi * 50 * t) + np.random.normal(0, 0.2, len(t))  # Example EMG signal
-    elif signal_type == 'EKG':
-        signal = np.sin(2 * np.pi * 1 * t) + np.random.normal(0, 0.3, len(t))  # Example EKG signal
-    return t, signal
+        yield t_curr, signal  
+        time.sleep(duration)
 
 
 def preprocess_signal(signal, fs=1000):
